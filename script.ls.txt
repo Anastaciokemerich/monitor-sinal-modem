@@ -1,0 +1,149 @@
+// Utilidades
+function gerarID() {
+    return '_' + Math.random().toString(36).substr(2, 9);
+}
+
+// Carregar e salvar dados no localStorage
+function carregarDados() {
+    return JSON.parse(localStorage.getItem('modemData')) || [];
+}
+
+function salvarDados(dados) {
+    localStorage.setItem('modemData', JSON.stringify(dados));
+}
+
+// Atualiza tabela
+function atualizarTabela(dados, destaqueID = null) {
+    const tbody = document.querySelector("#data-table tbody");
+    tbody.innerHTML = "";
+    dados.forEach(item => {
+        const tr = document.createElement("tr");
+        if (item.id === destaqueID) tr.classList.add("highlight");
+        tr.innerHTML = `
+            <td>${item.id}</td>
+            <td>${item.timestamp}</td>
+            <td>${item.node}</td>
+            <td>${item.mac}</td>
+            <td>${item.nome}</td>
+            <td>${item.snrDown}</td>
+            <td>${item.snrUp}</td>
+            <td>${item.powerDown}</td>
+            <td>${item.powerUp}</td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+// Validação do formulário
+function validarCampos(formData) {
+    return Object.values(formData).every(v => v !== "");
+}
+
+// Exportar CSV
+function exportarCSV(dados) {
+    const csv = [
+        ["ID","Timestamp","Node","MAC","Nome","SNR Down","SNR Up","Power Down","Power Up"],
+        ...dados.map(item => [
+            item.id, item.timestamp, item.node, item.mac, item.nome, item.snrDown, item.snrUp, item.powerDown, item.powerUp
+        ])
+    ].map(e => e.join(",")).join("\n");
+
+    const blob = new Blob([csv], {type: "text/csv"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "modem_signals.csv";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+// Tema claro/escuro
+function alternarTema() {
+    document.body.classList.toggle("dark");
+    localStorage.setItem('tema', document.body.classList.contains("dark") ? "dark" : "light");
+}
+
+function carregarTema() {
+    if (localStorage.getItem('tema') === "dark") {
+        document.body.classList.add("dark");
+    }
+}
+
+// Listar IDs
+function mostrarIDs(dados) {
+    const lista = document.getElementById("ids-list");
+    lista.innerHTML = "";
+    dados.forEach(item => {
+        const li = document.createElement("li");
+        li.textContent = item.id;
+        lista.appendChild(li);
+    });
+    document.getElementById("ids-list-section").classList.remove("hidden");
+}
+
+// Fechar lista de IDs
+document.getElementById("close-ids-list").onclick = () => {
+    document.getElementById("ids-list-section").classList.add("hidden");
+};
+
+// Eventos
+document.addEventListener("DOMContentLoaded", () => {
+    carregarTema();
+    let dados = carregarDados();
+    atualizarTabela(dados);
+
+    // Salvar novo dado
+    document.getElementById("signal-form").addEventListener("submit", function(e) {
+        e.preventDefault();
+        const formData = {
+            timestamp: document.getElementById("timestamp").value,
+            node: document.getElementById("node").value.trim(),
+            mac: document.getElementById("mac").value.trim(),
+            nome: document.getElementById("nome").value.trim(),
+            snrDown: document.getElementById("snr-down").value,
+            snrUp: document.getElementById("snr-up").value,
+            powerDown: document.getElementById("power-down").value,
+            powerUp: document.getElementById("power-up").value,
+        };
+        const errorDiv = document.getElementById("form-error");
+        if (!validarCampos(formData)) {
+            errorDiv.textContent = "Preencha todos os campos!";
+            errorDiv.classList.remove("hidden");
+            return;
+        }
+        errorDiv.classList.add("hidden");
+        const novo = { ...formData, id: gerarID() };
+        dados.push(novo);
+        salvarDados(dados);
+        atualizarTabela(dados);
+        this.reset();
+    });
+
+    // Exportar CSV
+    document.getElementById("export-csv-btn").onclick = () => exportarCSV(dados);
+
+    // Alternar tema
+    document.getElementById("theme-toggle").onclick = () => {
+        alternarTema();
+    };
+
+    // Buscar
+    document.getElementById("search-btn").onclick = () => {
+        const termo = document.getElementById("search-input").value.trim().toLowerCase();
+        if (!termo) {
+            atualizarTabela(dados);
+            return;
+        }
+        const resultado = dados.filter(item =>
+            item.mac.toLowerCase().includes(termo) ||
+            item.node.toLowerCase().includes(termo) ||
+            item.id.toLowerCase().includes(termo)
+        );
+        atualizarTabela(resultado);
+    };
+
+    // Listar IDs
+    document.getElementById("list-ids-btn").onclick = () => mostrarIDs(dados);
+});

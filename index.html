@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitor de Sinal de Modem</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Monitor de Sinal de Modem</h1>
+        <button id="theme-toggle">🌙 Alterar tema</button>
+    </header>
+    <section id="form-section">
+        <form id="signal-form">
+            <input type="datetime-local" id="timestamp" required>
+            <input type="text" id="node" placeholder="Node" required>
+            <input type="text" id="mac" placeholder="MAC" required>
+            <input type="text" id="nome" placeholder="Nome" required>
+            <input type="number" id="snr-down" placeholder="SNR Downstream" required step="0.1">
+            <input type="number" id="snr-up" placeholder="SNR Upstream" required step="0.1">
+            <input type="number" id="power-down" placeholder="Potência Downstream" required step="0.1">
+            <input type="number" id="power-up" placeholder="Potência Upstream" required step="0.1">
+            <button type="submit">Salvar</button>
+        </form>
+        <div id="form-error" class="hidden"></div>
+    </section>
+    <section id="search-section">
+        <input type="text" id="search-input" placeholder="Buscar por MAC, Node ou ID">
+        <button id="search-btn">Buscar</button>
+        <button id="list-ids-btn">Listar IDs</button>
+        <button id="export-csv-btn">Exportar CSV</button>
+    </section>
+    <section id="table-section">
+        <table id="data-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Timestamp</th>
+                    <th>Node</th>
+                    <th>MAC</th>
+                    <th>Nome</th>
+                    <th>SNR Down</th>
+                    <th>SNR Up</th>
+                    <th>Power Down</th>
+                    <th>Power Up</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Dados serão inseridos via JS -->
+            </tbody>
+        </table>
+    </section>
+    <section id="ids-list-section" class="hidden">
+        <h2>IDs Registrados</h2>
+        <ul id="ids-list"></ul>
+        <button id="close-ids-list">Fechar</button>
+    </section>
+    <script src="script.js"></script>
+</body>
+</html>
