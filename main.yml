@@ -1,0 +1,59 @@
+name: Deploy Monitor de Sinal de Modem
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  # Permite executar este workflow manualmente na aba Actions
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      # Checkout do código
+      - name: Checkout 🛎️
+        uses: actions/checkout@v3
+
+      # Verificação básica de HTML
+      - name: Verify HTML 🔍
+        run: |
+          echo "Verificando arquivos HTML..."
+          if grep -q "<html" index.html; then
+            echo "✅ HTML válido encontrado"
+          else
+            echo "❌ HTML inválido"
+            exit 1
+          fi
+
+      # Verificação básica de CSS
+      - name: Verify CSS 🎨
+        run: |
+          echo "Verificando arquivos CSS..."
+          if grep -q "body" styles.css; then
+            echo "✅ CSS válido encontrado"
+          else
+            echo "❌ CSS inválido"
+            exit 1
+          fi
+
+      # Verificação básica de JavaScript
+      - name: Verify JavaScript 📜
+        run: |
+          echo "Verificando arquivos JavaScript..."
+          if grep -q "addEventListener" script.js; then
+            echo "✅ JavaScript válido encontrado"
+          else
+            echo "❌ JavaScript inválido"
+            exit 1
+          fi
+
+      # Deploy para GitHub Pages
+      - name: Deploy 🚀
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: . # A pasta que contém os arquivos a serem implantados
+          branch: gh-pages # A branch onde o site será publicado
+          clean: true # Remove arquivos antigos
